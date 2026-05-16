@@ -1,7 +1,22 @@
 "use client";
 import { Package, AlertTriangle, TrendingUp, Warehouse } from "lucide-react"; // Standard icons for IMS
-
+import {mockInventory} from "../data/inventory"
+import {mockSales} from "../data/sales"
 export default function Home() {
+  const skuLength = mockInventory.length;
+  const lowStock = mockInventory.filter(item => item.quantity <= item.reorderPoint).length;
+  // COGS(Cost of Goods Sold): This is the sum of the unit cost of every item sold.
+    const totalCOGS: number = mockSales.reduce((sum, sale) =>{
+      const product = mockInventory.find(p => p.productId === sale.productId);
+      return sum + (product ? product.unitPrice * sale.quantitySold : 0);
+    }, 0)
+  // Average inventory value
+  // Sum up the value of your entire current warehouse: $\text{Quantity} \times
+  //  \text{Unit Price}$ for every item in your mockInventory.
+  const averageInventoryValue :number = mockInventory.reduce((sum, item) => {
+    return sum + (item.unitPrice * item.quantity);
+  },0) 
+  const inventoryTurnover: number = (totalCOGS / averageInventoryValue);
   return (
     <div className="min-h-screen bg-zinc-50 p-8 dark:bg-zinc-950">
       <header className="mb-8">
@@ -13,9 +28,9 @@ export default function Home() {
 
       {/* Stats Grid: High-level visibility for decision variables */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Total SKUs" value="1,284" icon={<Package size={20} />} detail="+12 from last week" />
-        <StatCard title="Low Stock Alerts" value="14" icon={<AlertTriangle size={20} className="text-amber-500" />} detail="Requires immediate action" />
-        <StatCard title="Inventory Turnover" value="6.2" icon={<TrendingUp size={20} />} detail="Goal: > 5.0" />
+        <StatCard title="Total SKUs" value = {String(skuLength)} icon={<Package size={20} />} detail="+12 from last week" />
+        <StatCard title="Low Stock Alerts" value= {String(lowStock)} icon={<AlertTriangle size={20} className="text-amber-500" />} detail="Requires immediate action" />
+        <StatCard title="Inventory Turnover" value={String(inventoryTurnover)} icon={<TrendingUp size={20} />} detail="Goal: > 5.0" />
         <StatCard title="Active Warehouses" value="4" icon={<Warehouse size={20} />} detail="Across 2 regions" />
       </div>
 
