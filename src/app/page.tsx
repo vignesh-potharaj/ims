@@ -17,6 +17,10 @@ export default function Home() {
     return sum + (item.unitPrice * item.quantity);
   },0) 
   const inventoryTurnover: number = (totalCOGS / averageInventoryValue);
+  // Calculate unique active warehouses
+  const activeWarehousesCount = new Set(
+    mockInventory.map(item => item.warehouse)
+  ).size;
   return (
     <div className="min-h-screen bg-zinc-50 p-8 dark:bg-zinc-950">
       <header className="mb-8">
@@ -31,7 +35,7 @@ export default function Home() {
         <StatCard title="Total SKUs" value = {String(skuLength)} icon={<Package size={20} />} detail="+12 from last week" />
         <StatCard title="Low Stock Alerts" value= {String(lowStock)} icon={<AlertTriangle size={20} className="text-amber-500" />} detail="Requires immediate action" />
         <StatCard title="Inventory Turnover" value={String(inventoryTurnover)} icon={<TrendingUp size={20} />} detail="Goal: > 5.0" />
-        <StatCard title="Active Warehouses" value="4" icon={<Warehouse size={20} />} detail="Across 2 regions" />
+        <StatCard title="Active Warehouses" value={activeWarehousesCount.toString()} icon={<Warehouse size={20} />} detail="Across 2 regions" />
       </div>
 
       {/* Main Content Area: Where our Table will go later */}
