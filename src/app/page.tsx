@@ -2,6 +2,8 @@
 import { Package, AlertTriangle, TrendingUp, Warehouse } from "lucide-react"; // Standard icons for IMS
 import {mockInventory} from "../data/inventory"
 import {mockSales} from "../data/sales"
+import TableCard from "./components/tableCard";
+
 export default function Home() {
   const skuLength = mockInventory.length;
   const lowStock = mockInventory.filter(item => item.quantity <= item.reorderPoint).length;
@@ -39,10 +41,8 @@ export default function Home() {
       </div>
 
       {/* Main Content Area: Where our Table will go later */}
-      <div className="mt-8 rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="h-[400px] flex items-center justify-center border-2 border-dashed border-zinc-200 rounded-lg dark:border-zinc-800">
-          <p className="text-zinc-400">Inventory Table & Server-Side Data Fetching (Coming Next...)</p>
-        </div>
+      <div className="mt-8">
+            <TableCard products={mockInventory}/>
       </div>
     </div>
   );
