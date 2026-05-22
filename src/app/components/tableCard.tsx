@@ -26,6 +26,20 @@ export default function TableCard({products} : TableCardProps) {
                     <th className="px-6 py-4 text-right">Stock Level</th>
                     </tr>
                 </thead>
+                <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
+                    {products.map((product) => {
+                        const isLowStock = product.quantity <= product.reorderPoint;
+                        return (
+                            <tr key = {product.productId}
+                                className={`group transition-colors duration-150 hover:bg-zinc-50/70 dark:hover:bg-zinc-800/30 ${
+                                        isLowStock 
+                                        ? "bg-amber-50/30 dark:bg-amber-950/10 hover:bg-amber-50/50 dark:hover:bg-amber-950/20" 
+                                        : ""
+                                    }`}>
+                            </tr>
+                        );
+                    })}
+                </tbody>
             </table>
         </div>
     </div>
