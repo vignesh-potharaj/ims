@@ -1,4 +1,6 @@
 import React from "react";
+import { AlertCircle } from "lucide-react";
+
 interface TableCardProps {
     products: {
         productId: string;
@@ -36,6 +38,60 @@ export default function TableCard({products} : TableCardProps) {
                                         ? "bg-amber-50/30 dark:bg-amber-950/10 hover:bg-amber-50/50 dark:hover:bg-amber-950/20" 
                                         : ""
                                     }`}>
+                                {/* Column 1: Product Name */}
+                                <td className="whitespace-nowrap px-6 py-4 font-medium text-zinc-900 dark:text-zinc-100">
+                                {product.name}
+                                </td>
+
+                                {/* Column 2: SKU */}
+                                <td className="whitespace-nowrap px-6 py-4 font-mono text-xs tracking-tight text-zinc-600 dark:text-zinc-400">
+                                {product.sku}
+                                </td>
+
+                                {/* Column 3: ABC Category Badge */}
+                                <td className="whitespace-nowrap px-6 py-4">
+                                <span
+                                    className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-semibold ring-1 ring-inset ${
+                                    product.category === "A"
+                                        ? "bg-purple-50 text-purple-700 ring-purple-700/10 dark:bg-purple-950/30 dark:text-purple-400"
+                                        : product.category === "B"
+                                        ? "bg-blue-50 text-blue-700 ring-blue-700/10 dark:bg-blue-950/30 dark:text-blue-400"
+                                        : "bg-zinc-50 text-zinc-600 ring-zinc-500/10 dark:bg-zinc-800 dark:text-zinc-400"
+                                    }`}
+                                >
+                                    Class {product.category}
+                                </span>
+                                </td>
+
+                                {/* Column 4: Warehouse */}
+                                <td className="whitespace-nowrap px-6 py-4 text-zinc-600 dark:text-zinc-400">
+                                {product.warehouse}
+                                </td>
+                                {/* Column 5: Unit Price (Right-Aligned for Financial Scanning) */}
+                                <td className="whitespace-nowrap px-6 py-4 text-right font-medium text-zinc-900 dark:text-zinc-100">
+                                ₹{product.unitPrice.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                </td>
+
+                                {/* Column 6: Quantity (With conditional formatting for stockouts) */}
+                                <td className="whitespace-nowrap px-6 py-4 text-right">
+                                <div className="flex items-center justify-end gap-2">
+                                    {isLowStock && (
+                                    <span className="inline-flex items-center gap-1 font-medium text-amber-600 dark:text-amber-400">
+                                        <AlertCircle size={14} />
+                                        <span className="text-xs uppercase tracking-wider">Low</span>
+                                    </span>
+                                    )}
+                                    <span
+                                    className={`font-semibold ${
+                                        isLowStock
+                                        ? "text-amber-700 dark:text-amber-400"
+                                        : "text-zinc-900 dark:text-zinc-100"
+                                    }`}
+                                    >
+                                    {product.quantity.toLocaleString()}
+                                    </span>
+                                </div>
+                                </td>
                             </tr>
                         );
                     })}
