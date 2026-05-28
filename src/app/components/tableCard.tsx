@@ -29,6 +29,11 @@ export default function TableCard({products} : TableCardProps) {
     });
     const uniqueWarehouses = ["Warehouse(All)", ...new Set(mockInventory.map((item) => item.warehouse))];
     const uniqueCategory = ["Category(All)", ...new Set(mockInventory.map((item) => item.category))];
+    const handleReset = () => {
+        setSelectedWarehouse("Warehouse(All)");
+        setSelectedCategory("Category(All)");
+        setSelectedQuantity("Stock Level(All)");
+        };
   return(
     <div className="w-full overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-zinc-200 bg-zinc-50/50 p-4 dark:border-zinc-800 dark:bg-zinc-800/20">
@@ -66,6 +71,7 @@ export default function TableCard({products} : TableCardProps) {
                     <option value="Normal">Normal Stock</option>
                     <option value="Low Stock">Low Stock</option>
                 </select>
+                <button className="hover:cursor-pointer" onClick={handleReset}>Reset</button>
             </div>
         </div>
         <div className="w-full overflow-x-auto">
