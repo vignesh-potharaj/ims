@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { AlertCircle, Filter } from "lucide-react";
 import { mockInventory } from "@/data/inventory";
+import { mock } from "node:test";
 
 interface TableCardProps {
     products: {
@@ -15,23 +16,56 @@ interface TableCardProps {
     } [];
 }
 export default function TableCard({products} : TableCardProps) {
-    const [selectedWarehouse, setSelectedWarehouse] = useState("All");
-    const [selectedCategory, setSelectedCategory] = useState("All");
-    const [selectedQuantity, setSelectedQuantity] = useState("All");
+    const [selectedWarehouse, setSelectedWarehouse] = useState("Warehouse(All)");
+    const [selectedCategory, setSelectedCategory] = useState("Category(All)");
+    const [selectedQuantity, setSelectedQuantity] = useState("Stock Level(All)");
 
     const filteredProducts = mockInventory.filter((product) => {
-        const matchesWarehouse = selectedWarehouse == "All" || product.warehouse == selectedWarehouse;
-        const matchesCategory = selectedCategory == "All" || product.category == selectedCategory;
+        const matchesWarehouse = selectedWarehouse == "Warehouse(All)" || product.warehouse == selectedWarehouse;
+        const matchesCategory = selectedCategory == "Category(All)" || product.category == selectedCategory;
         const isLowStock = product.quantity <= product.reorderPoint;
-        const matchesQuantity = selectedQuantity == "All" || (selectedQuantity == "Low Stock" && isLowStock) || (selectedQuantity == "Normal" && !isLowStock);
+        const matchesQuantity = selectedQuantity == "Stock Level(All)" || (selectedQuantity == "Low Stock" && isLowStock) || (selectedQuantity == "Normal" && !isLowStock);
         return matchesQuantity && matchesWarehouse && matchesCategory
     });
+    const uniqueWarehouses = ["Warehouse(All)", ...new Set(mockInventory.map((item) => item.warehouse))];
+    const uniqueCategory = ["Category(All)", ...new Set(mockInventory.map((item) => item.category))];
   return(
     <div className="w-full overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-zinc-200 bg-zinc-50/50 p-4 dark:border-zinc-800 dark:bg-zinc-800/20">
             <div className="flex items-center gap-2 text-sm font-medium text-zinc-700 dark:text-zinc-300">
                 <Filter size={16}/>
                 <span>Inventory Filter</span>
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+                {/* Warehouse Dropdown */}
+                <select className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-700 outline-none focus:ring-2 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
+                value={selectedWarehouse}
+                onChange={(change)=> setSelectedWarehouse(change.target.value)} name="" id="">
+                    {uniqueWarehouses.map((warehouse) => (
+                    <option key={warehouse} value={warehouse}>
+                        {warehouse}
+                    </option>
+                    ))}
+                </select>
+                {/* Category Dropdon */}
+                <select 
+                className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-700 outline-none focus:ring-2 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
+                value={selectedCategory}
+                onChange={(change) => setSelectedCategory(change.target.value)}
+                >
+                    {uniqueCategory.map((category) => (
+                        <option key={category} value={category}>
+                            {category}
+                        </option>
+                    ))}
+                </select>
+                <select className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-700 outline-none focus:ring-2 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
+                value={selectedQuantity}
+                onChange={(change) => setSelectedQuantity(change.target.value)}>
+                    <option value="Stock Level(All)">Stock Level(All)</option>
+                    <option value="Normal">Normal Stock</option>
+                    <option value="Low Stock">Low Stock</option>
+                </select>
             </div>
         </div>
         <div className="w-full overflow-x-auto">
@@ -47,7 +81,14 @@ export default function TableCard({products} : TableCardProps) {
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
-                    {products.map((product) => {
+                    {filteredProducts.length === 0 ? (
+                        <tr>
+                            <td colSpan={6} className="py-8 text-center text-zinc-500">
+                                No Products found for the filter applied.
+                            </td>
+                        </tr>
+                    ) : (
+                    filteredProducts.map((product) => {
                         const isLowStock = product.quantity <= product.reorderPoint;
                         return (
                             <tr key = {product.productId}
@@ -112,7 +153,7 @@ export default function TableCard({products} : TableCardProps) {
                                 </td>
                             </tr>
                         );
-                    })}
+                    }))}
                 </tbody>
             </table>
         </div>
