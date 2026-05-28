@@ -1,5 +1,6 @@
-import React from "react";
-import { AlertCircle } from "lucide-react";
+import React, { useState } from "react";
+import { AlertCircle, Filter } from "lucide-react";
+import { mockInventory } from "@/data/inventory";
 
 interface TableCardProps {
     products: {
@@ -14,8 +15,25 @@ interface TableCardProps {
     } [];
 }
 export default function TableCard({products} : TableCardProps) {
+    const [selectedWarehouse, setSelectedWarehouse] = useState("All");
+    const [selectedCategory, setSelectedCategory] = useState("All");
+    const [selectedQuantity, setSelectedQuantity] = useState("All");
+
+    const filteredProducts = mockInventory.filter((product) => {
+        const matchesWarehouse = selectedWarehouse == "All" || product.warehouse == selectedWarehouse;
+        const matchesCategory = selectedCategory == "All" || product.category == selectedCategory;
+        const isLowStock = product.quantity <= product.reorderPoint;
+        const matchesQuantity = selectedQuantity == "All" || (selectedQuantity == "Low Stock" && isLowStock) || (selectedQuantity == "Normal" && !isLowStock);
+        return matchesQuantity && matchesWarehouse && matchesCategory
+    });
   return(
     <div className="w-full overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-zinc-200 bg-zinc-50/50 p-4 dark:border-zinc-800 dark:bg-zinc-800/20">
+            <div className="flex items-center gap-2 text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                <Filter size={16}/>
+                <span>Inventory Filter</span>
+            </div>
+        </div>
         <div className="w-full overflow-x-auto">
             <table className="w-full border-collapse text-left text-sm text-zinc-500 dark:text-zinc-400">
                 <thead className="bg-zinc-50 text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:bg-zinc-800/50 dark:text-zinc-300">
