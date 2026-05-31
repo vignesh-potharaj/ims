@@ -10,7 +10,7 @@ async function getInventory() {
   return res.json();
 }
 
-export  async function Page() {
+export async function Page() {
   const inventory = await getInventory(); // Data is fetched during render
   return <TableCard products={inventory} />;
 }
