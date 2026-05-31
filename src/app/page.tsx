@@ -4,6 +4,17 @@ import {mockInventory} from "../data/inventory"
 import {mockSales} from "../data/sales"
 import TableCard from "./components/tableCard";
 
+async function getInventory() {
+  const res = await fetch('http://localhost:3000/api/inventory', { cache: 'no-store' });
+  if (!res.ok) throw new Error('Failed to fetch data');
+  return res.json();
+}
+
+export  async function Page() {
+  const inventory = await getInventory(); // Data is fetched during render
+  return <TableCard products={inventory} />;
+}
+
 export default function Home() {
   const skuLength = mockInventory.length;
   const lowStock = mockInventory.filter(item => item.quantity <= item.reorderPoint).length;
