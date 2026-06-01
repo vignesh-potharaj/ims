@@ -1,29 +1,29 @@
 import { Package, AlertTriangle, TrendingUp, Warehouse } from "lucide-react"; // Standard icons for IMS
-import {mockInventory} from "../data/inventory"
 import {mockSales} from "../data/sales"
 import TableCard from "./components/tableCard";
 import { getInventory } from "@/api/api";
 
 
 export default async function Home() {
-  const inventory = await getInventory();
-  const skuLength = mockInventory.length;
-  const lowStock = mockInventory.filter(item => item.quantity <= item.reorderPoint).length;
+  const fetchedInventory = await getInventory();
+  const inventory = fetchedInventory || [];
+  const skuLength = inventory.length;
+  const lowStock = inventory.filter(item => item.quantity <= item.reorderPoint).length;
   // COGS(Cost of Goods Sold): This is the sum of the unit cost of every item sold.
     const totalCOGS: number = mockSales.reduce((sum, sale) =>{
-      const product = mockInventory.find(p => p.productId === sale.productId);
+      const product = inventory.find(p => p.productId === sale.productId);
       return sum + (product ? product.unitPrice * sale.quantitySold : 0);
-    }, 0)
+    }, 0);
   // Average inventory value
   // Sum up the value of your entire current warehouse: $\text{Quantity} \times
-  //  \text{Unit Price}$ for every item in your mockInventory.
-  const averageInventoryValue :number = mockInventory.reduce((sum, item) => {
+  //  \text{Unit Price}$ for every item in your inventory.
+  const averageInventoryValue :number = inventory.reduce((sum, item) => {
     return sum + (item.unitPrice * item.quantity);
   },0) 
   const inventoryTurnover: number = (totalCOGS / averageInventoryValue);
   // Calculate unique active warehouses
   const activeWarehousesCount = new Set(
-    mockInventory.map(item => item.warehouse)
+    inventory.map(item => item.warehouse)
   ).size;
   return (
     <div className="min-h-screen bg-zinc-50 p-8 dark:bg-zinc-950">
