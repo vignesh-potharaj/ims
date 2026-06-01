@@ -1,21 +1,12 @@
-"use client";
 import { Package, AlertTriangle, TrendingUp, Warehouse } from "lucide-react"; // Standard icons for IMS
 import {mockInventory} from "../data/inventory"
 import {mockSales} from "../data/sales"
 import TableCard from "./components/tableCard";
+import { getInventory } from "@/api/api";
 
-async function getInventory() {
-  const res = await fetch('http://localhost:3000/api/inventory', { cache: 'no-store' });
-  if (!res.ok) throw new Error('Failed to fetch data');
-  return res.json();
-}
 
-export async function Page() {
-  const inventory = await getInventory(); // Data is fetched during render
-  return <TableCard products={inventory} />;
-}
-
-export default function Home() {
+export default async function Home() {
+  const inventory = await getInventory();
   const skuLength = mockInventory.length;
   const lowStock = mockInventory.filter(item => item.quantity <= item.reorderPoint).length;
   // COGS(Cost of Goods Sold): This is the sum of the unit cost of every item sold.
@@ -53,7 +44,7 @@ export default function Home() {
 
       {/* Main Content Area: Where our Table will go later */}
       <div className="mt-8">
-            <TableCard products={mockInventory}/>
+            <TableCard products={inventory}/>
       </div>
     </div>
   );
