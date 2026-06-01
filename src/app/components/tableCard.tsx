@@ -1,8 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { AlertCircle, Filter } from "lucide-react";
-import { mockInventory } from "@/data/inventory";
-import { mock } from "node:test";
+import { getInventory } from "@/api/api";
 
 interface TableCardProps {
     products: {
@@ -16,20 +15,22 @@ interface TableCardProps {
         warehouse: string;
     } [];
 }
-export default function TableCard({products} : TableCardProps) {
+export default async function TableCard({products} : TableCardProps) {
+    const fetchedInventory = await getInventory();
+    const inventory = fetchedInventory || [];
     const [selectedWarehouse, setSelectedWarehouse] = useState("Warehouse(All)");
     const [selectedCategory, setSelectedCategory] = useState("Category(All)");
     const [selectedQuantity, setSelectedQuantity] = useState("Stock Level(All)");
 
-    const filteredProducts = mockInventory.filter((product) => {
+    const filteredProducts = inventory.filter((product) => {
         const matchesWarehouse = selectedWarehouse == "Warehouse(All)" || product.warehouse == selectedWarehouse;
         const matchesCategory = selectedCategory == "Category(All)" || product.category == selectedCategory;
         const isLowStock = product.quantity <= product.reorderPoint;
         const matchesQuantity = selectedQuantity == "Stock Level(All)" || (selectedQuantity == "Low Stock" && isLowStock) || (selectedQuantity == "Normal" && !isLowStock);
         return matchesQuantity && matchesWarehouse && matchesCategory
     });
-    const uniqueWarehouses = ["Warehouse(All)", ...new Set(mockInventory.map((item) => item.warehouse))];
-    const uniqueCategory = ["Category(All)", ...new Set(mockInventory.map((item) => item.category))];
+    const uniqueWarehouses = ["Warehouse(All)", ...new Set(inventory.map((item) => item.warehouse))];
+    const uniqueCategory = ["Category(All)", ...new Set(inventory.map((item) => item.category))];
     const handleReset = () => {
         setSelectedWarehouse("Warehouse(All)");
         setSelectedCategory("Category(All)");
