@@ -1,36 +1,24 @@
 "use client";
 import React, { useState } from "react";
 import { AlertCircle, Filter } from "lucide-react";
-import { getInventory } from "@/api/api";
-
+import { Product } from "@/data/inventory";
 interface TableCardProps {
-    products: {
-        productId: string;
-        name: string;
-        sku: string;
-        category: "A" | "B" | "C";
-        quantity: number;
-        reorderPoint: number;
-        unitPrice: number;
-        warehouse: string;
-    } [];
+    products: Product[];
 }
-export default async function TableCard({products} : TableCardProps) {
-    const fetchedInventory = await getInventory();
-    const inventory = fetchedInventory || [];
+export default function TableCard({products} : TableCardProps) {
     const [selectedWarehouse, setSelectedWarehouse] = useState("Warehouse(All)");
     const [selectedCategory, setSelectedCategory] = useState("Category(All)");
     const [selectedQuantity, setSelectedQuantity] = useState("Stock Level(All)");
 
-    const filteredProducts = inventory.filter((product) => {
+    const filteredProducts = products.filter((product) => {
         const matchesWarehouse = selectedWarehouse == "Warehouse(All)" || product.warehouse == selectedWarehouse;
         const matchesCategory = selectedCategory == "Category(All)" || product.category == selectedCategory;
         const isLowStock = product.quantity <= product.reorderPoint;
         const matchesQuantity = selectedQuantity == "Stock Level(All)" || (selectedQuantity == "Low Stock" && isLowStock) || (selectedQuantity == "Normal" && !isLowStock);
         return matchesQuantity && matchesWarehouse && matchesCategory
     });
-    const uniqueWarehouses = ["Warehouse(All)", ...new Set(inventory.map((item) => item.warehouse))];
-    const uniqueCategory = ["Category(All)", ...new Set(inventory.map((item) => item.category))];
+    const uniqueWarehouses = ["Warehouse(All)", ...new Set(products.map((item) => item.warehouse))];
+    const uniqueCategory = ["Category(All)", ...new Set(products.map((item) => item.category))];
     const handleReset = () => {
         setSelectedWarehouse("Warehouse(All)");
         setSelectedCategory("Category(All)");
