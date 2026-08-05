@@ -12,5 +12,6 @@ export async function getInventory(): Promise<Product[]>{
     }
 }
 
-// this is a helper function that wraps the fetch() command making it easy for the react 
-// components to request data from route.ts 
+// This is a Server Data Fetcher.
+// It securely queries the database directly (bypassing HTTP fetch) 
+// to provide data to Next.js Server Components.
