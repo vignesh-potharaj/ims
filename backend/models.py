@@ -14,14 +14,14 @@ class Product(db.Model):
     unit_price = db.Column(db.Float, nullable=False, default=0.0)
     warehouse = db.Column(db.String(50), nullable=False)
 
-def to_dict(self):
-    return{
-        "productId": self.product_id,
-        "sku": self.sku,
-        "name": self.name,
-        "category": self.category,
-        "quantity": self.quantity,
-        "reorderPoint": self.reorder_point,
-        "unitPrice": self.unit_price,
-        "warehouse": self.warehouse
-    }
+    def to_dict(self):
+        return{
+            "productId": self.product_id,
+            "sku": self.sku,
+            "name": self.name,
+            "category": self.category,
+            "quantity": self.quantity,
+            "reorderPoint": self.reorder_point,
+            "unitPrice": self.unit_price,
+            "warehouse": self.warehouse
+        }
