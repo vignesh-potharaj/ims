@@ -73,27 +73,27 @@ def update_product(product_id):
 @app.route('/api/inventory/<string:product_id>', methods=["DELETE"])
 def delete_product(product_id):
     product = Product.query.get(product_id)
-    if not Product:
+    if not product:
         return jsonify({"error": "Product not Found"}), 404
     try:
         db.session.delete(product)
         db.session.commit()
         return jsonify({"message":"Product {product_id} is deleted successfully"})
     except Exception as e:
-        db.session.rollback
+        db.session.rollback()
         return jsonify({"error": str(e)})
 # Analytics
-@app.route('/api/inventory', methods=["GET"])
+@app.route('/api/analytics', methods=["GET"])
 def get_analytics():
     products = Product.query.all()
     total_skus = len(products)
     low_stock_count = sum(1 for p in products if p.quantity <= p.reorder_point)
     total_inventory_value = sum(p.quantity * p.unit_price for p in products)
-    active_warehouses = len(set(p.warehouses for p in products))
+    active_warehouses = len(set(p.warehouse for p in products))
 
     return jsonify({
         "totalSkus": total_skus,
-        "lowStockCount": low_stock_count,
+        "lowStockAlerts": low_stock_count,
         "totalInventoryValue": total_inventory_value,
         "activeWarehouses": active_warehouses
     }), 200
