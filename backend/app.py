@@ -48,7 +48,7 @@ def add_product():
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 400
-
+# Update Product
 @app.route('/api/inventory/<string:product_id>', methods=['PUT'])
 def update_product(product_id):
     product = Product.query.get(product_id)
@@ -69,5 +69,17 @@ def update_product(product_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 400
+@app.route('/api/inventory/<string:product_id>', methods=["DELETE"])
+def delete_product(product_id):
+    product = Product.query.get(product_id)
+    if not Product:
+        return jsonify({"error": "Product not Found"}), 404
+    try:
+        db.session.delete(product)
+        db.session.commit()
+        return jsonify({"message":"Product {product_id} is deleted successfully"})
+    except Exception as e:
+        db.session.rollback
+        return jsonify({"error": str(e)})
 if __name__ == '__main__':
     app.run(port=5000, debug=True)
