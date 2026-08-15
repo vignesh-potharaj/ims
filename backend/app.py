@@ -78,10 +78,10 @@ def delete_product(product_id):
     try:
         db.session.delete(product)
         db.session.commit()
-        return jsonify({"message":"Product {product_id} is deleted successfully"})
+        return jsonify({"message":F"Product {product_id} is deleted successfully"})
     except Exception as e:
         db.session.rollback()
-        return jsonify({"error": str(e)})
+        return jsonify({"error": str(e)}), 400
 # Analytics
 @app.route('/api/analytics', methods=["GET"])
 def get_analytics():
