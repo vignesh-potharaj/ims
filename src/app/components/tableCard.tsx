@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { AlertCircle, Filter } from "lucide-react";
-import { Product } from "@/data/inventory";
+import { Product } from "@/types/inventory";
 interface TableCardProps {
     products: Product[];
 }

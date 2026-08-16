@@ -1,4 +1,4 @@
-import { Product } from "@/data/inventory";
+import { Product } from "@/types/inventory";
 
 export async function getInventory(): Promise<Product[]>{
     try {

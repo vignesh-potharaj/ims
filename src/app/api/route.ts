@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { mockInventory } from "@/data/inventory";
+import { mockInventory } from "@/types/inventory";
 
 export async function GET() {
     await new Promise((resolve) => setTimeout(resolve, 1000))

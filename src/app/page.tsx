@@ -1,5 +1,5 @@
 import { Package, AlertTriangle, TrendingUp, Warehouse } from "lucide-react"; // Standard icons for IMS
-import {mockSales} from "../data/sales"
+import {mockSales} from "../types/sales"
 import TableCard from "./components/tableCard";
 import { getInventory } from "@/lib/api";
 
