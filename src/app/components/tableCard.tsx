@@ -2,6 +2,8 @@
 import React, { useState } from "react";
 import { AlertCircle, Filter } from "lucide-react";
 import { Product } from "@/types/inventory";
+import { Plus } from "lucide-react";
+import AddProductModal from "./AddProductModal";
 interface TableCardProps {
     products: Product[];
 }
@@ -9,7 +11,7 @@ export default function TableCard({products} : TableCardProps) {
     const [selectedWarehouse, setSelectedWarehouse] = useState("Warehouse(All)");
     const [selectedCategory, setSelectedCategory] = useState("Category(All)");
     const [selectedQuantity, setSelectedQuantity] = useState("Stock Level(All)");
-
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const filteredProducts = products.filter((product) => {
         const matchesWarehouse = selectedWarehouse == "Warehouse(All)" || product.warehouse == selectedWarehouse;
         const matchesCategory = selectedCategory == "Category(All)" || product.category == selectedCategory;
@@ -27,9 +29,21 @@ export default function TableCard({products} : TableCardProps) {
     return(
         <div className="w-full overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
             <div className="flex flex-wrap items-center justify-between gap-4 border-b border-zinc-200 bg-zinc-50/50 p-4 dark:border-zinc-800 dark:bg-zinc-800/20">
-                <div className="flex items-center gap-2 text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                    <Filter size={16}/>
-                    <span>Inventory Filter</span>
+                    <div className="flex flex-wrap items-center justify-between gap-4 border-b border-zinc-800 pb-4 mb-4">
+                    {/* Left: Button to open Modal */}
+                    <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="flex items-center gap-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 px-3.5 py-2 text-sm font-medium text-white shadow transition"
+                    >
+                        <Plus size={16} />
+                        Add Product
+                    </button>
+
+                    {/* Right: Existing Filter Dropdowns */}
+                    <div className="flex flex-wrap items-center gap-2">
+                        {/* Dropdowns for Warehouse, Category, Stock Level and Reset button */}
+                    </div>
+                    <AddProductModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
                     {/* Warehouse Dropdown */}
