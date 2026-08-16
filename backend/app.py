@@ -13,6 +13,11 @@ CORS(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    "pool_pre_ping": True,  # Checks connection validity before executing queries
+    "pool_recycle": 300,    # Refreshes idle connections every 5 minutes
+}
+
 db.init_app(app)
 
 # create tables in postgreSQL when starts
