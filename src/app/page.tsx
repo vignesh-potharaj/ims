@@ -1,65 +1,104 @@
-import { Package, AlertTriangle, TrendingUp, Warehouse } from "lucide-react"; // Standard icons for IMS
-import {mockSales} from "../types/sales"
+import { Package, AlertTriangle, DollarSign, Warehouse } from "lucide-react";
 import TableCard from "./components/tableCard";
-import { getInventory } from "@/lib/api";
-
+import { getInventory, getAnalytics } from "@/lib/api";
 
 export default async function Home() {
-  const fetchedInventory = await getInventory();
+  // Fetch both datasets concurrently from the Flask backend
+  const [fetchedInventory, stats] = await Promise.all([
+    getInventory(),
+    getAnalytics(),
+  ]);
+
   const inventory = fetchedInventory || [];
-  const skuLength = inventory.length;
-  const lowStock = inventory.filter(item => item.quantity <= item.reorderPoint).length;
-  // COGS(Cost of Goods Sold): This is the sum of the unit cost of every item sold.
-    const totalCOGS: number = mockSales.reduce((sum, sale) =>{
-      const product = inventory.find(p => p.productId === sale.productId);
-      return sum + (product ? product.unitPrice * sale.quantitySold : 0);
-    }, 0);
-  // Average inventory value
-  // Sum up the value of your entire current warehouse: $\text{Quantity} \times
-  //  \text{Unit Price}$ for every item in your inventory.
-  const averageInventoryValue :number = inventory.reduce((sum, item) => {
-    return sum + (item.unitPrice * item.quantity);
-  },0) 
-  const inventoryTurnover: number = (totalCOGS / averageInventoryValue);
-  // Calculate unique active warehouses
-  const activeWarehousesCount = new Set(
-    inventory.map(item => item.warehouse)
-  ).size;
+
   return (
     <div className="min-h-screen bg-zinc-50 p-8 dark:bg-zinc-950">
+      {/* Header */}
       <header className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-          SwiftStock Pro: Inventory Overview
-        </h1>
-        <p className="text-zinc-500">Real-time visibility across your global supply chain.</p>
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+            SwiftStock Pro: Inventory Overview
+          </h1>
+          <p className="text-zinc-500">
+            Real-time visibility across your global supply chain.
+          </p>
+        </div>
       </header>
 
-      {/* Stats Grid: High-level visibility for decision variables */}
+      {/* Backend Offline Warning Banner */}
+      {!stats && (
+        <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-red-700 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-400">
+          <p className="text-sm font-medium">
+            ⚠️ <strong>Backend Connection Error:</strong> Unable to connect to the Flask analytics engine on port 5000. Real-time KPI calculations are temporarily unavailable.
+          </p>
+        </div>
+      )}
+
+      {/* Stats Grid: Populated directly from backend /api/analytics */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Total SKUs" value = {String(skuLength)} icon={<Package size={20} />} detail="+12 from last week" />
-        <StatCard title="Low Stock Alerts" value= {String(lowStock)} icon={<AlertTriangle size={20} className="text-amber-500" />} detail="Requires immediate action" />
-        <StatCard title="Inventory Turnover" value={String(inventoryTurnover)} icon={<TrendingUp size={20} />} detail="Goal: > 5.0" />
-        <StatCard title="Active Warehouses" value={activeWarehousesCount.toString()} icon={<Warehouse size={20} />} detail="Across 2 regions" />
+        <StatCard
+          title="Total SKUs"
+          value={stats ? stats.totalSkus.toString() : "—"}
+          icon={<Package size={20} />}
+          detail="Live SKUs in database"
+        />
+        <StatCard
+          title="Total Valuation"
+          value={
+            stats
+              ? `₹${stats.totalInventoryValue.toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}`
+              : "—"
+          }
+          icon={<DollarSign size={20} />}
+          detail="Cumulative stock asset value"
+        />
+        <StatCard
+          title="Low Stock Alerts"
+          value={stats ? stats.lowStockAlerts.toString() : "—"}
+          icon={<AlertTriangle size={20} className="text-amber-500" />}
+          detail="Items at or below reorder threshold"
+        />
+        <StatCard
+          title="Active Warehouses"
+          value={stats ? stats.activeWarehouses.toString() : "—"}
+          icon={<Warehouse size={20} />}
+          detail="Operational fulfillment hubs"
+        />
       </div>
 
-      {/* Main Content Area: Where our Table will go later */}
+      {/* Main Content Area: Filterable Data Table */}
       <div className="mt-8">
-            <TableCard products={inventory}/>
+        <TableCard products={inventory} />
       </div>
     </div>
   );
 }
 
 // Reusable component for the dashboard stats
-function StatCard({ title, value, icon, detail }: { title: string, value: string, icon: React.ReactNode, detail: string }) {
+function StatCard({
+  title,
+  value,
+  icon,
+  detail,
+}: {
+  title: string;
+  value: string;
+  icon: React.ReactNode;
+  detail: string;
+}) {
   return (
     <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-      <div className="flex items-center justify-between space-y-0 pb-2">
+      <div className="flex items-center justify-between pb-2">
         <h3 className="text-sm font-medium text-zinc-500">{title}</h3>
         <div className="text-zinc-400">{icon}</div>
       </div>
-      <div className="text-2xl font-bold">{value}</div>
-      <p className="text-xs text-zinc-400 mt-1">{detail}</p>
+      <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
+        {value}
+      </div>
+      <p className="mt-1 text-xs text-zinc-400">{detail}</p>
     </div>
   );
 }
