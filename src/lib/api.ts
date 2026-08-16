@@ -41,6 +41,16 @@ export async function getAnalytics(): Promise<analyticsData | null> {
     }
 }
 // Add Product
-export async function addProduct(productData: Partial<Product>) {
-    
+export async function createProduct(productData: Partial<Product>): Promise<boolean> {
+    try {
+        const res = await fetch(`${BASE_URL}/inventory`, {
+            method:"POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(productData),
+        });
+        return res.ok;
+    } catch (error) {
+            console.error("Failed to create product", error)
+            return false
+    }
 }

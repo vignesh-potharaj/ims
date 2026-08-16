@@ -3,7 +3,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from dotenv import load_dotenv
 from models import db, Product
-
+import uuid
 load_dotenv()
 
 app = Flask(__name__)
@@ -26,19 +26,20 @@ def get_inventory():
     return jsonify([p.to_dict() for p in products]), 200
 
 # Add Product
-@app.route('/api/inventory', methods=['POST'])
+@app.route('/api/inventory', methods=["POST"])
 def add_product():
     data = request.get_json()
     if not data:
         return jsonify({"error": "Invalid Payload"}), 400
+    generate_id = data.get('product_id') or f"p{uuid.uuid4().hex[:6]}"
     new_product = Product(
-        product_id=data.get('productId'),
+        product_id=generate_id,
         sku=data.get('sku'),
         name=data.get('name'),
         category=data.get('category'),
-        quantity=data.get('quantity', 0),
-        reorder_point=data.get('reorderPoint', 0),
-        unit_price=data.get('unitPrice', 0.0),
+        quantity=int(data.get('quantity', 0)),
+        reorder_point=int(data.get('reorderPoint', 0)),
+        unit_price=int(data.get('unitPrice', 0)),
         warehouse=data.get('warehouse')
     )
     try:
@@ -47,7 +48,7 @@ def add_product():
         return jsonify(new_product.to_dict()), 201
     except Exception as e:
         db.session.rollback()
-        return jsonify({"error": str(e)}), 400
+        return jsonify({"error": {e}}), 400
 # Update Product
 @app.route('/api/inventory/<string:product_id>', methods=['PUT'])
 def update_product(product_id):
@@ -97,6 +98,6 @@ def get_analytics():
         "totalInventoryValue": total_inventory_value,
         "activeWarehouses": active_warehouses
     }), 200
-
+# Add Product
 if __name__ == '__main__':
     app.run(port=5000, debug=True)
