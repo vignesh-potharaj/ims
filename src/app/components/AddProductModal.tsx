@@ -28,24 +28,30 @@ export default function AddProductModal({ isOpen, onClose }: AddProductModalProp
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    try {
+      const success = await createProduct({
+        ...formData,
+        category: formData.category as "A" | "B" | "C",
+        quantity: Number(formData.quantity),
+        reorderPoint: Number(formData.reorderPoint),
+        unitPrice: Number(formData.unitPrice),
+      });
 
-    const success = await createProduct({
-      ...formData,
-      category: formData.category as "A" | "B" | "C",
-      quantity: Number(formData.quantity),
-      reorderPoint: Number(formData.reorderPoint),
-      unitPrice: Number(formData.unitPrice),
-    });
-
-    setLoading(false);
-    if (success) {
-      onClose();
-      router.refresh(); // Refresh Server Components to re-fetch live PostgreSQL data
-    } else {
-      alert("Failed to add product. Please verify all fields.");
+      if (success) {
+        onClose();
+        router.refresh(); // Refresh Server Components to re-fetch live PostgreSQL data
+      } else {
+        alert("Failed to add product. Please verify all fields.");
+      }
     }
-  };
-
+    catch (error) {
+      console.error("error during submission:",error);
+      alert("A critical error occurred while saving. Please try again.");
+    }
+    finally{
+      setLoading(false);
+    }
+  }
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
       <div className="w-full max-w-lg rounded-xl border border-zinc-800 bg-zinc-950 p-6 shadow-2xl">
