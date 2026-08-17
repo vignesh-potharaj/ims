@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { createProduct } from "@/lib/api";
 import { useRouter } from "next/navigation";
-import { X } from "lucide-react";
+import { X, AlertCircle } from "lucide-react";
 
 interface AddProductModalProps {
   isOpen: boolean;
@@ -13,11 +13,21 @@ interface AddProductModalProps {
 export default function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const [formData, setFormData] = useState<{
+    name: string;
+    sku: string;
+    category: "A" | "B" | "C";
+    warehouse: string;
+    quantity: number;
+    reorderPoint: number;
+    unitPrice: number;
+  }>({
     name: "",
     sku: "",
-    category: "",
-    warehouse: "",
+    category: "A",
+    warehouse: "Mumbai Central",
     quantity: 0,
     reorderPoint: 5,
     unitPrice: 0,
@@ -28,30 +38,32 @@ export default function AddProductModal({ isOpen, onClose }: AddProductModalProp
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setErrorMessage(null); // Clear previous error
+
     try {
-      const success = await createProduct({
+      const result = await createProduct({
         ...formData,
-        category: formData.category as "A" | "B" | "C",
+        category: formData.category,
         quantity: Number(formData.quantity),
         reorderPoint: Number(formData.reorderPoint),
         unitPrice: Number(formData.unitPrice),
       });
 
-      if (success) {
+      if (result.success) {
         onClose();
-        router.refresh(); // Refresh Server Components to re-fetch live PostgreSQL data
+        router.refresh();
       } else {
-        alert("Failed to add product. Please verify all fields.");
+        // Display the specific reason returned from the backend
+        setErrorMessage(result.error || "Failed to add product.");
       }
-    }
-    catch (error) {
-      console.error("error during submission:",error);
-      alert("A critical error occurred while saving. Please try again.");
-    }
-    finally{
+    } catch (error) {
+      console.error("Unexpected error during submission:", error);
+      setErrorMessage("An unexpected error occurred. Please try again.");
+    } finally {
       setLoading(false);
     }
-  }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
       <div className="w-full max-w-lg rounded-xl border border-zinc-800 bg-zinc-950 p-6 shadow-2xl">
@@ -61,6 +73,14 @@ export default function AddProductModal({ isOpen, onClose }: AddProductModalProp
             <X size={20} />
           </button>
         </div>
+
+        {/* Dynamic Backend Error Banner */}
+        {errorMessage && (
+          <div className="mb-4 flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">
+            <AlertCircle size={16} className="shrink-0" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -91,7 +111,7 @@ export default function AddProductModal({ isOpen, onClose }: AddProductModalProp
               <label className="block text-xs font-medium text-zinc-400 mb-1">Category Tier</label>
               <select
                 value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value as "A" | "B" | "C" })}
                 className="w-full rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-zinc-500"
               >
                 <option value="A">Class A</option>

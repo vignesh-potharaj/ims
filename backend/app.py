@@ -36,6 +36,13 @@ def add_product():
     data = request.get_json()
     if not data:
         return jsonify({"error": "Invalid Payload"}), 400
+    sku = data.get('sku')
+    if not sku:
+        return jsonify({"error": "SKU is reuired"}), 400
+    # check for duplicate skus
+    existing_product = Product.query.filter_by(sku=sku).first()
+    if existing_product:
+        return jsonify({"error": f"SKU {sku} already exists in inventory."}), 400
     generate_id = data.get('product_id') or f"p{uuid.uuid4().hex[:6]}"
     new_product = Product(
         product_id=generate_id,
@@ -44,7 +51,7 @@ def add_product():
         category=data.get('category'),
         quantity=int(data.get('quantity', 0)),
         reorder_point=int(data.get('reorderPoint', 0)),
-        unit_price=int(data.get('unitPrice', 0)),
+        unit_price=float(data.get('unitPrice', 0)),
         warehouse=data.get('warehouse')
     )
     try:
@@ -53,7 +60,7 @@ def add_product():
         return jsonify(new_product.to_dict()), 201
     except Exception as e:
         db.session.rollback()
-        return jsonify({"error": {e}}), 400
+        return jsonify({"error": str(e)}), 400
 # Update Product
 @app.route('/api/inventory/<string:product_id>', methods=['PUT'])
 def update_product(product_id):
@@ -103,6 +110,5 @@ def get_analytics():
         "totalInventoryValue": total_inventory_value,
         "activeWarehouses": active_warehouses
     }), 200
-# Add Product
 if __name__ == '__main__':
     app.run(port=5000, debug=True)
