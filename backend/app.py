@@ -68,6 +68,20 @@ def update_product(product_id):
     if not product:
         return jsonify({"error": "Product not Found"}), 404
     data = request.get_json()
+    if not data:
+        return jsonify({"error": "No update data provided"}), 400
+    if 'sku' in data and data['sku'] != product.sku:
+        existing = Product.query.filter_by(sku=data['sku']).first()
+        if existing:
+            return jsonify({"error": "Product with {sku} is already present, choose another sku"}), 409
+        product.sku = data['sku']
+    if 'name' in data and data['name'] != product.name:
+        existing = Product.query.filter_by(name=data['name']).first()
+        if existing:
+            return jsonify({"error": "A Product with {name} already exists"}), 409
+        product.name = data['name']
+    if 'category' in data:
+        product.category = data['category']
     if 'quantity' in data:
          product.quantity = data['quantity']
     if 'reorderPoint' in data:

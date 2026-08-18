@@ -67,19 +67,31 @@ export async function createProduct(productData: Partial<Product>): Promise<{ su
             }
     }
 }
-// export async function updateProduct(
-//     productId:string,
-//     updatedFields: Partial<Product>
-// ): Promise<boolean> {
-//     try {
-//         const res = await fetch(`${BASE_URL}/inventory/${productId}`, {
-//             method:"PUT",
-//             headers:{"Content-type": "application/json"},
-//             body: JSON.stringify(updatedFields)
-//         });
-//         return res.ok
-//     }
-//     catch (error) {
-//         console.error("API Error PUT Inventory")
-//     }
-// }
+export async function updateProduct(
+    productId:string,
+    updatedFields: Partial<Product>
+): Promise<{success: boolean ; error?: string
+}> {
+    try {
+        const res = await fetch(`${BASE_URL}/inventory/${productId}`, {
+            method:"PUT",
+            headers:{"Content-type": "application/json"},
+            body: JSON.stringify(updatedFields)
+        });
+        const responseData = await res.json()
+        if (!res.ok) {
+            return{
+                success: false,
+                error: responseData || "Failed to update Product"
+            };
+        }
+        return {success: true}
+    }
+    catch (error: any) {
+        console.error("API Error PUT Inventory", error)
+        return{
+            success: false,
+            error: "Unable to connect to backend server",
+        };
+    }
+}
