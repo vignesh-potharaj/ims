@@ -1,4 +1,4 @@
-import { Package, AlertTriangle, DollarSign, Warehouse } from "lucide-react";
+import { Package, AlertTriangle, IndianRupee, Warehouse } from "lucide-react";
 import TableCard from "./components/tableCard";
 import { getInventory, getAnalytics } from "@/lib/api";
 
@@ -52,7 +52,7 @@ export default async function Home() {
                 })}`
               : "—"
           }
-          icon={<DollarSign size={20} />}
+          icon={<IndianRupee size={20} />}
           detail="Cumulative stock asset value"
         />
         <StatCard
