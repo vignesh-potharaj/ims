@@ -64,7 +64,7 @@ def add_product():
 # Update Product
 @app.route('/api/inventory/<string:product_id>', methods=['PUT'])
 def update_product(product_id):
-    product = Product.query.get(product_id)
+    product = db.session.get(Product, product_id)
     if not product:
         return jsonify({"error": "Product not Found"}), 404
     data = request.get_json()
@@ -99,7 +99,7 @@ def update_product(product_id):
 # Delete Product
 @app.route('/api/inventory/<string:product_id>', methods=["DELETE"])
 def delete_product(product_id):
-    product = Product.query.get(product_id)
+    product = db.session.get(Product, product_id)
     if not product:
         return jsonify({"error": f"Product with ID '{product_id}' not found."}), 404
     try:
