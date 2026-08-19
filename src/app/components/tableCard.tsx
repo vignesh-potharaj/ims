@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { AlertCircle, Filter, Pencil, Plus } from "lucide-react";
+import { AlertCircle, Filter, Pencil, Plus, Trash2 } from "lucide-react";
 import { Product } from "@/types/inventory";
 import AddProductModal from "./AddProductModal";
 import EditProductModal from "./EditProductModal";
+import DeleteConfirmModal from "./DeleteConfirmModal";
 
 interface TableCardProps {
   products: Product[];
@@ -16,6 +17,7 @@ export default function TableCard({ products }: TableCardProps) {
   const [selectedQuantity, setSelectedQuantity] = useState("Stock Level(All)");
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
 
   // Client-side filtering logic
   const filteredProducts = products.filter((product) => {
@@ -174,13 +176,25 @@ export default function TableCard({ products }: TableCardProps) {
                       </div>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <button
-                        onClick={() => setEditingProduct(p)}
-                        className="rounded p-1.5 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition"
-                        title="Edit Product"
-                      >
-                        <Pencil size={15} />
-                      </button>
+                      <div className="inline-flex items-center gap-1 justify-end">
+                        {/* Edit Button */}
+                        <button
+                          onClick={() => setEditingProduct(p)}
+                          className="rounded p-1.5 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition"
+                          title="Edit Product"
+                        >
+                          <Pencil size={15} />
+                        </button>
+
+                        {/* Delete Button */}
+                        <button
+                          onClick={() => setDeletingProduct(p)}
+                          className="rounded p-1.5 text-zinc-400 hover:bg-red-500/10 hover:text-red-400 transition"
+                          title="Delete Product"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -190,12 +204,17 @@ export default function TableCard({ products }: TableCardProps) {
         </table>
       </div>
 
-      {/* Modals */}
+      {/* Modals rendered outside table to prevent DOM hydration errors */}
       <AddProductModal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} />
       <EditProductModal
         product={editingProduct}
         isOpen={!!editingProduct}
         onClose={() => setEditingProduct(null)}
+      />
+      <DeleteConfirmModal
+        product={deletingProduct}
+        isOpen={!!deletingProduct}
+        onClose={() => setDeletingProduct(null)}
       />
     </div>
   );
