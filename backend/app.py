@@ -101,11 +101,11 @@ def update_product(product_id):
 def delete_product(product_id):
     product = Product.query.get(product_id)
     if not product:
-        return jsonify({"error": "Product not Found"}), 404
+        return jsonify({"error": f"Product with ID '{product_id}' not found."}), 404
     try:
         db.session.delete(product)
         db.session.commit()
-        return jsonify({"message":F"Product {product_id} is deleted successfully"})
+        return jsonify({"message":f"Product {product_id} is deleted successfully"})
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 400

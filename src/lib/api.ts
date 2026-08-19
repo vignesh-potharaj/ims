@@ -1,5 +1,6 @@
 import { Product } from "@/types/inventory";
 import { error } from "console";
+import { Flag } from "lucide-react";
 const BASE_URL = "http://localhost:5000/api";
 
 // Get Inventory
@@ -95,3 +96,25 @@ export async function updateProduct(
         };
     }
 }
+export async function deleteProduct(productId: string): Promise<{success: boolean; error?: string}> {
+    try {
+    const res = await fetch(`${BASE_URL}/inventory/${productId}`,{
+        method: "DELETE",
+    });
+    const data = await res.json().catch(() =>({}))
+    if (!res.ok) {
+        return {
+            success: false,
+            error: data.error || "Failed to delete product"
+        }
+    }
+    return{ success: false}
+    }
+    catch (error) {
+        console.error(`API Error (DELETE /inventory/${productId}):`, error)
+        return {
+            success: false,
+            error: "Unable to connect to the backend server"
+        }
+    }
+} 
